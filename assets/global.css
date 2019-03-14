@@ -1,0 +1,226 @@
+* {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+.regular {
+  background: linear-gradient to right, #171717, #171717, #fdec06, #171717,
+    #171717;
+  font-family: "Hind Guntur", "Arial";
+}
+
+.MyQr {
+  background-color: #fdec06;
+  font-family: "Hind Guntur", "Arial";
+}
+
+.grey {
+  background: #171717;
+  font-family: "Hind Guntur", "Arial";
+}
+
+.nav-bar {
+  background: #171717;
+  color: white;
+  height: 7vh;
+  margin-bottom: 5px;
+}
+
+.nav-text {
+  margin-left: 10px;
+  font-size: 3vh;
+  color: #4b4a43;
+}
+
+.nav-bar-myqr {
+  background: #fdec06;
+  height: 40px;
+  margin-bottom: 5px;
+}
+
+.glavni {
+  color: #fdec06;
+  display: grid;
+  grid-gap: 0.7vh;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.tridiv {
+  background-color: #171717;
+  color: #fdec06;
+  font-family: "Hind Guntur", "Arial";
+  font-size: 30px;
+  align-content: center;
+  position: relative;
+  align-items: center;
+  height: 32.6vh;
+  display: inline-block;
+}
+
+div.tridiv:hover {
+  background-color: #fdec06;
+  color: #171717;
+}
+
+img.centar {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  width: 30vh;
+  height: 26vh;
+  margin-top: 4vh;
+}
+
+img.centarqr {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 10px 20px 20px 20px;
+}
+
+img.left {
+  display: inline-block;
+  max-width: 70%;
+  max-height: 70%;
+  position: relative;
+  margin-left: 39vw;
+  margin-right: 39vw;
+  margin-bottom: -10px;
+  padding-top: 2vh;
+}
+
+img.centarblank {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  max-width: 70%;
+  max-height: 70%;
+  margin-top: 4vh;
+}
+
+.bottom-right {
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+}
+
+h2 {
+  text-align: center;
+}
+
+h4 {
+  text-align: center;
+  padding: 30px 20px 20px 20px;
+  font-size: 40px;
+}
+
+h3 {
+  margin-left: 10px;
+  margin-top: 20px;
+  font-size: 20px;
+  color: #4b4a43;
+}
+
+h3:hover {
+  color: white;
+}
+
+p {
+  text-align: center;
+  padding-bottom: 0 auto;
+}
+
+.hyperspan {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+
+.bottom-right {
+  position: absolute;
+  bottom: 8px;
+  color: white;
+}
+
+.change {
+  position: absolute;
+  margin-top: -30px;
+  margin-left: 650px;
+  padding-top: 50px;
+  margin-bottom: -20px;
+}
+
+.tridivqr {
+  color: #171717;
+  font-family: "Hind Guntur", "Arial";
+  font-size: 30px;
+  align-content: center;
+  position: relative;
+  align-items: center;
+  height: 60vh;
+  display: block;
+}
+
+#centar {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 10px 20px 20px 20px;
+  text-align: center;
+}
+
+.text-yellow {
+  color: yellow !important;
+}
+
+.moj-input {
+  color: rgb(0, 0, 0);
+  background-color: rgb(49, 49, 45);
+}
+.moj-zuti {
+  color: rgb(0, 0, 0);
+  background-color: rgb(255, 255, 0);
+  border-color: #6c757d;
+}
+.moj-zuti:hover {
+  color: rgb(255, 255, 255);
+  background-color: #4b4a43;
+  border-color: #6c757d;
+}
+
+#spusten {
+  margin-top: 80px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+h3.edit {
+  margin-left: 10px;
+  margin-top: 20px;
+  font-size: 20px;
+  color: #171717;
+}
+.tridiv-h2 {
+  margin-top: 10.5vh;
+  font-size: 5vh;
+}
+
+.tridiv-h4 {
+  margin-top: 5vh;
+  font-size: 5vh;
+}

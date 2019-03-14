@@ -1,180 +1,623 @@
 <template>
-<section class="glavni">
-<div class="container">
-  
-    <form v-on:reset="resetFields" v-on:submit.prevent="submitForm" class="form-inline">
+  <section class="glavni">
+    <div class="container">
+      <div class="agile">
+        <div class="signin-form profile">
+          <h3>EDIT MY PROFILE</h3>
 
-   
-          <input type="text" id="first-name" v-model.trim="firstName" placeholder="first name" v-model="firstName"/>
-  
-          <input type="text" id="last-name" v-model.trim="lastName" placeholder="last name"  v-model="lastName"/>
-        
-                      
-          <input type="text" id="company" v-model.trim="company" placeholder="company"/>
-     
-                
-          <input type="text" id="companyAdress" v-model.trim="companyAdress"  placeholder="company adress"/>
-                  
-          <input type="text" id="email" v-model.trim="email" placeholder="e-mail"/>
-   
-                     
-          <input type="text" id="phone" v-model.trim="phone" placeholder="phone"/>
-     
-           
-          <input type="text" id="website" v-model.trim="website" placeholder="website"/>
-      
-        
-        <button type="reset" class="submit">reset</button>
-        <br>
-        <button type="submit" class="submit" v-bind:disabled="!formIsValid">submit change</button>
-    
-    </form>
-</div>
-</section>
+          <div class="login-form">
+            <spinner v-if="showSpinner"/>
+            <form action="#" method="post" @submit.prevent="update" v-else>
+              <input
+                type="text"
+                v-model="user.first_name"
+                name="firstName"
+                placeholder="First name"
+                required
+              >
+              <input
+                type="text"
+                v-model="user.last_name"
+                name="lastName"
+                placeholder="Last name"
+                required
+              >
+              <input
+                type="text"
+                v-model="user.company"
+                name="company"
+                placeholder="Company"
+                required
+              >
+              <input type="text" v-model="user.email" name="email" placeholder="E-mail" required>
+              <input type="text" v-model="user.phone" name="phone" placeholder="Phone" required>
+              <input
+                type="text"
+                v-model="user.website"
+                name="website"
+                placeholder="Website"
+                required
+              >
+              <input type="submit" value="UPDATE">
+            </form>
+            <modal
+              v-if="showModal"
+              @close="showModal = false"
+              :header="modalHeader"
+              :body="modalBody"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </template>
 <script>
+import Modal from "~/components/Modal";
+import Spinner from "~/components/Spinner";
+
 export default {
-	layout: 'home',
-	asyncData(){
-		return {
-			firstName: "Sara",
-			lastName: "Franjul"
-		}
-	},
-	  computed: {
+  layout: "home",
+  middleware: "authenticated",
+  components: {
+    Modal,
+    Spinner
+  },
+  data() {
+    return {
+      showModal: false,
+      showSpinner: true,
+      modalHeader: "",
+      modalBody: "",
+      user: {
+        first_name: "",
+        last_name: "",
+        company: "",
+        companyAddress: "",
+        phone: "",
+        website: ""
+      }
+    };
+  },
+  computed: {
     fullName: {
       get: function() {
         if (this.firstName && this.lastName) {
-          return this.firstName + ' ' + this.lastName;
+          return this.firstName + " " + this.lastName;
         } else {
           return this.firstName || this.lastName;
         }
       },
       set: function(newFullName) {
-        const names = newFullName.split(' ');
+        const names = newFullName.split(" ");
 
         if (names.length === 2) {
           this.firstName = names[0];
           this.lastName = names[1];
         }
-        
+
         if (names.length <= 1) {
-          this.firstName = names[0] || '';
-          this.lastName = '';
+          this.firstName = names[0] || "";
+          this.lastName = "";
         }
       }
     },
-   
+
     formIsValid: function() {
-      return this.firstName && this.lastName && this.email && this.purchaseAgreementSigned;
+      return this.firstName && this.lastName && this.email;
     }
   },
-  watch: {
-    specialRequests: function(newRequests, oldRequests) {
-      if (newRequests.toLowerCase().includes('meet and greet') || 
-          newRequests.toLowerCase().includes('meet-and-greet')) {
-        this.ticketType = 'vip';
-      }
-    }
+  created() {
+    this.getDataFromApi();
   },
   methods: {
-    resetFields: function() {
-      this.firstName = '';
-      this.lastName = '';
-      this.email = '';
-      this.ticketQuantity = 1;
-      this.ticketType = 'general';
-      this.referrals = [];
-      this.specialRequests = '';
-      this.purchaseAgreementSigned = false;
+    async getDataFromApi() {
+      let token = localStorage.getItem("token");
+      await this.$axios
+        .$get("user?token=" + token)
+        .then(response => {
+          console.log(response.user);
+          this.user = response.user;
+          this.showSpinner = false;
+        })
+        .catch(error => {
+          console.log(error);
+          this.showSpinner = false;
+        });
+    },
+    async update() {
+      this.showSpinner = true;
+      console.log("Updating profile...");
+      await this.$axios
+        .$post(
+          "update",
+          {
+            token: localStorage.getItem("token"),
+            userId: this.$store.state.userId,
+            first_name: this.user.first_name,
+            last_name: this.user.last_name,
+            email: this.user.email,
+            company: this.user.company,
+            website: this.user.website,
+            phone: this.user.phone
+          } /*config*/
+        )
+        .then(response => {
+          this.modalHeader = "Success";
+          this.modalBody = "Your profile is updated";
+          this.showModal = true;
+        })
+        .catch(error => {
+          this.modalHeader = "Error";
+          this.modalBody = String(error);
+          this.showModal = true;
+          console.log(error);
+        });
     }
   }
-}
-
+};
 </script>
+
 <style scoped>
-	.container {
+.glavni {
+  float: right;
+  width: 87%;
+  height: 100vh;
+  background-color: #171717;
+  overflow: hidden;
+  transition: width 0.3s ease;
+  display: inline;
+}
+@media screen and (min-width: 600px) {
+  .glavni {
+    width: calc(100% - 80px);
+  }
+}
+.container {
   min-width: 100vh;
   min-height: 100vh;
   background-color: black;
 }
-@font-face {
-  font-family: 'Hind Guntur';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Hind Guntur Regular'), local('HindGuntur-Regular'), url(https://fonts.gstatic.com/s/hindguntur/v4/wXKvE3UZrok56nvamSuJd_QtvXI.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+
+.form-container {
+  margin-left: 20vh;
+  margin-right: 10vh;
 }
 
-/* latin */
-@font-face {
-  font-family: 'Hind Guntur';
-  font-style: normal;
-  font-weight: 600;
-  src: local('Hind Guntur SemiBold'), local('HindGuntur-SemiBold'), url(https://fonts.gstatic.com/s/hindguntur/v4/wXKyE3UZrok56nvamSuJd_zymWc0ld0.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+.container {
+  min-width: 100vw;
+  min-height: 120vh;
+  background-color: #fdec06;
 }
 
-/** {
-  margin: 0;
-  padding: 0;
-}*/
-
-* {box-sizing: border-box;}
-.form-inline input {
-  vertical-align: middle;
-  margin: 5px 10px 5px 0;
-  padding: 10px;
-  border: 1px #4B4A43; 
-  border-radius: 4px;
-  background-color: #4B4A43;
-  color: #FDEC06;
-  font-size: 20px; 
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: "";
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+/*--start editing from here--*/
+a {
+  text-decoration: none;
+}
+.txt-rt {
+  text-align: right;
+} /* text align right */
+.txt-lt {
+  text-align: left;
+} /* text align left */
+.txt-center {
+  text-align: center;
+} /* text align center */
+.float-rt {
+  float: right;
+} /* float right */
+.float-lt {
+  float: left;
+} /* float left */
+.clear {
+  clear: both;
+} /* clear float */
+.pos-relative {
+  position: relative;
+} /* Position Relative */
+.pos-absolute {
+  position: absolute;
+} /* Position Absolute */
+.vertical-base {
+  vertical-align: baseline;
+} /* vertical align baseline */
+.vertical-top {
+  vertical-align: top;
+} /* vertical align top */
+nav.vertical ul li {
+  display: block;
+} /* vertical menu */
+nav.horizontal ul li {
+  display: inline-block;
+} /* horizontal menu */
+img {
+  max-width: 100%;
+}
+/*--end reset--*/
+body {
+  font-family: "Hind Guntur", sans-serif;
+  background: #ccbd00;
+}
+h1 {
+  color: #fff;
+  text-align: center;
+  padding: 1em 0 0 0;
+  font-size: 3em;
+  font-weight: 700;
 }
 
+h3 {
+  font-family: "Hind Guntur", sans-serif;
+}
+/*-- main --*/
+.main {
+  margin: 4em auto;
+  width: 50%;
+}
+.banner {
+  background-color: #171717;
+  background-size: cover;
+}
 
-.submit {
-  width: 20%;
-  background-color: #FDEC06;
-  font-family: "Hind Guntur";	
+/*--signin-form--*/
+.w3 {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+
+  width: 48%;
+  margin: auto;
+  margin-top: 50px;
+}
+.agile {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+
+  width: 48%;
+  margin: auto;
+  margin-top: 50px;
+}
+.signin-form {
+  background-color: #171717;
+  background-size: cover;
+  padding: 2em 2em;
+  text-align: center;
+}
+.signin-form h3 {
+  font-size: 2em;
+  color: #fdec06;
+  font-weight: 700;
+  margin-bottom: 1.5em;
+}
+.signin-form h3 span {
+  color: #fdec06;
+}
+.signin-form img {
+  border-radius: 50%;
+}
+.login-form {
+  margin: 1em 0 2.5em;
+}
+.signin-form input[type="text"],
+.signin-form input[type="password"] {
+  width: 92%;
+  padding: 1em 1em 1em 1em;
+  font-size: 0.8em;
+  margin: 1em 0;
+  outline: none;
+  color: #fff;
+  border: none;
+  border-bottom: 2px solid #fdec06;
+  letter-spacing: 1px;
+  text-align: center;
+}
+.signin-form input[type="text"] {
+  background: none;
+  display: block;
+}
+.signin-form input[type="password"] {
+  background: none;
+  display: block;
+}
+::-webkit-input-placeholder {
+  color: #4b4a43 !important;
+}
+.signin-form input[type="submit"] {
+  outline: none;
+  padding: 0.9em 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1em;
+  margin-top: 1em;
+  border: none;
   color: #171717;
-  font-size: 20px;
-  padding: 8px 20px;
-  margin: 10px 10px;
-  border-radius: 4px;
   cursor: pointer;
-  border: 1px #4B4A43; 
-
+  background: #c9bc06;
+  box-shadow: 0px 2px 1px rgba(28, 28, 29, 0.42);
+  border-radius: 22px;
+}
+.signin-form input[type="submit"]:hover {
+  color: #fff;
+  background: #002242;
+  transition: 0.5s all;
+  -webkit-transition: 0.5s all;
+  -moz-transition: 0.5s all;
+  -o-transition: 0.5s all;
+  -ms-transition: 0.5s all;
+}
+.signin-form p a {
+  font-size: 0.875em;
+  color: #fff;
+  letter-spacing: 1px;
+}
+/*--//signin-form--*/
+.header-social {
+  text-align: center;
+  margin-bottom: 2em;
+}
+.tp {
+  margin: 3.7em 0 0;
+}
+h5 {
+  border-left: 1px dotted #7467b9;
+  padding: 0.5em;
 }
 
-.submit:hover {
-  background-color: #4B4A43;
+.header-social h4 {
+  font-size: 17px;
+  color: #6a67ce;
+  text-align: center;
+  margin: 20px 0px;
+  font-family: "Hind Guntur", sans-serif;
+}
+.header-social h4 a {
+  color: #6a67ce;
+}
+.header-social h4 a:hover {
+  color: #ffb900;
+}
+/*--copyright--*/
+.copyright {
+  margin: 2em;
+  text-align: center;
+}
+.copyright p {
+  font-size: 1em;
+  color: #fff;
+  line-height: 1.8em;
+}
+.copyright p a {
+  color: #fff;
+}
+.copyright p a:hover {
+  color: #56c8dc;
 }
 
-div {
-  border-radius: 5px;
-  padding: 10px;
+/*---- responsive-design -----*/
+@media (max-width: 1440px) {
+  .main {
+    width: 56%;
+  }
 }
-
-
-.form-inline {  
-  display: flex;
-  flex-flow: row wrap;
-  align-items: center;
+@media (max-width: 1366px) {
+  .main {
+    width: 59%;
+  }
 }
-
-
+@media (max-width: 1280px) {
+  h1 {
+    font-size: 2.5em;
+  }
+  .main {
+    width: 63%;
+  }
+}
+@media (max-width: 1080px) {
+  .main {
+    width: 74%;
+    margin: 2em auto;
+  }
+}
+@media (max-width: 1024px) {
+  .main {
+    width: 82%;
+  }
+  .signin-form {
+    padding: 3em 2.5em;
+  }
+}
+@media (max-width: 991px) {
+  .main {
+    width: 85%;
+  }
+}
+@media (max-width: 900px) {
+  .main {
+    width: 93%;
+  }
+}
 @media (max-width: 800px) {
-  .form-inline input {
-    margin: 10px 0;
+  .main {
+    width: 51%;
   }
-  
-  .form-inline {
-    flex-direction: column;
-    align-items: stretch;
+  .w3 {
+    float: none;
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 5%;
+  }
+  .agile {
+    float: none;
+    width: 100%;
+    margin-top: 0px;
+  }
+  .signin-form p a {
+    line-height: 1.8em;
+  }
+}
+@media (max-width: 768px) {
+  .main {
+    width: 53%;
+  }
+}
+@media (max-width: 736px) {
+  .main {
+    width: 55%;
+  }
+}
+/*-- w3layouts --*/
+@media (max-width: 667px) {
+  .main {
+    width: 61%;
+  }
+}
+@media (max-width: 640px) {
+  .main {
+    width: 64%;
+  }
+}
+@media (max-width: 600px) {
+  .main {
+    width: 68%;
+  }
+}
+@media (max-width: 568px) {
+  .main {
+    width: 72%;
+  }
+}
+@media (max-width: 480px) {
+  .main {
+    width: 78%;
+  }
+  .header-social a.face {
+    width: 27%;
+  }
+  .header-social a.goog {
+    width: 21%;
+  }
+  .w3 {
+    margin-bottom: 0%;
+  }
+  .signin-form input[type="text"],
+  .signin-form input[type="password"] {
+    width: 91%;
+  }
+  h1 {
+    font-size: 2.2em;
+  }
+  .profile {
+    margin-top: 2em;
+  }
+  .signin-form {
+    padding: 2em 2em;
+  }
+  .copyright p {
+    font-size: 0.9em;
+  }
+  /*-- agileits --*/
+}
+@media (max-width: 414px) {
+  .signin-form input[type="text"],
+  .signin-form input[type="password"] {
+    width: 89%;
+  }
+  .signin-form {
+    padding: 2em 1.5em;
+  }
+  .header-social a.face {
+    width: 25%;
+  }
+  .header-social a.goog {
+    width: 19%;
+  }
+  .tp {
+    margin: 1.7em 0 0;
+  }
+  .header-social {
+    margin-bottom: 1em;
+  }
+  .signin-form h3 {
+    margin-bottom: 1em;
+  }
+  .login-form {
+    margin: 1em 0 1.5em;
+  }
+}
+@media (max-width: 384px) {
+  h1 {
+    font-size: 2em;
+  }
+  .header-social a.face {
+    width: 22%;
+  }
+  .header-social a.goog {
+    width: 17%;
+  }
+}
+@media (max-width: 375px) {
+  .main {
+    width: 79%;
+  }
+  .header-social a.goog {
+    width: 15%;
+  }
+}
+@media (max-width: 320px) {
+  h1 {
+    font-size: 1.6em;
+  }
+  .main {
+    width: 89%;
+    margin: 1.5em auto;
+  }
+  .login-form {
+    margin: 1em 0 1.5em;
+  }
+  .signin-form {
+    padding: 1.5em 1.5em;
+  }
+  .signin-form h3 {
+    font-size: 1.5em;
+  }
+  .signin-form input[type="text"],
+  .signin-form input[type="password"] {
+    width: 88%;
+  }
+  .signin-form input[type="submit"] {
+    padding: 0.7em 0;
+    font-size: 0.9em;
+  }
+  .signin-form p a {
+    font-size: 0.9em;
   }
 
-
+  .signin-form p a {
+    line-height: 1.5em;
+  }
+  .copyright {
+    margin: 1em;
+  }
 }
 </style>
 

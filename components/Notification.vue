@@ -1,12 +1,18 @@
 <template>
   <div class="notification is-danger">
-    {{ message }}
+    <p class="errorMessage">{{ message }}</p>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Notification',
-  props: ['message']
-}
+  name: "Notification",
+  props: ["message"]
+};
 </script>
+<style>
+.errorMessage {
+  color: red;
+  margin-top: 2%;
+}
+</style>
